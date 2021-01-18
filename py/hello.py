@@ -15,8 +15,7 @@
 # isinstance：可用于类型的判断：isinstance(x, (int, str, float))
 
 # # 允许使用 r'' 表示 '' 内部的字符串默认不转义
-# # \\n\t\\
-# print(r'\\n\t\\')
+# print(r'\\n\t\\')		# \\n\t\\
 
 # # 允许使用 '''...''' 的格式标识多行内容
 # # line1
@@ -135,7 +134,7 @@
 
 # print([1] + [2, 3, 4] + [1])		# [1, 2, 3, 4, 1]
 
-# from functools import reduce
+from functools import reduce
 # def str2float(s):
 # 	obj = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '.': '.'}
 # 	def fn1(x):
@@ -152,10 +151,13 @@
 # print('123abcrunoob321'.strip('123'))		# abcrunoob
 
 # 字符串反转
+# 第一个 : 两端表示取值的开始、结束，第二个 : 表示取值是的跨度，正数从左往右，负数从右往左
+# 取值范围会受第二个 : 的正负约束，需有正确的同向取值范围
 # a = '123456'
 # print(a[::-1], '12')		# 654321
 # s="hy l ekil ylemertxe ma i"
 # y=s[:2:-1]
+# 取 -1 ~ 2 间的值，然后从右往左（-1）取值跨度为1（即取相邻的数）
 # print(y)		# i am extremely like l
 
 # 排序：sorted(arr, key = xxx, reverse = True)
@@ -242,12 +244,12 @@
 # callable(max) => True 		callable([1, 2, 3]) => False
 
 # 枚举类，value属性自动赋给成员 int 常量，默认从 1 开始计数
-# from enum import Enum
+from enum import Enum
 # Month = Enum('Month', ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'))
 # for name, member in Month.__members__.items():
 # 	print(name, '=>', member, '=>', member.value)		# 打印对应月份及其值，值为 1-12
 # 如果需要更精确的空置枚举类型，可以从 Enum 派生出自定义类，@unique 装饰器可以检查保证没有重复值
-# from enum import Enum, unique
+from enum import Enum, unique
 # @unique
 # class Weekday(Enum):
 # 	Sun = 0
@@ -263,7 +265,7 @@
 
 # 浮点字符串调用 int() 方法时会报错！！ 如：int('6.6') => 报错
 
-# from functools import reduce
+from functools import reduce
 # def str2num(s):
 # 	return int(float(s))
 # def calc(exp):
@@ -283,7 +285,7 @@
 # 在启动Python解释器的时候，可以用 -O 参数来关闭assert，如：python -O hello.py，此时，assert可以当做pass来看
 
 # logging：不会抛出错误，而且可以输出到文件，等级有debug、info、warning、error等
-# import logging
+import logging
 # logging.basicConfig(level=logging.INFO)
 
 # s = '0'
@@ -315,27 +317,27 @@
 # 	f.write('\nhello py')
 
 # 操作文件和目录
-# import os
+import os
 # print(os.name)		# nt（window操作系统）
 # # print(os.environ)
 # print(os.path.abspath('.'))		# 查看当前目录的绝对路径
 
 # JSON序列化
-# import json
+import json
 # json.dumps(dict_obj)		# 把dict序列化为json字符串
 # json.loads(json_str)		# 把json字符串反序列化
 # print(json.dumps(dict_obj, default=lambda obj: obj.__dict__))		# 把实例序列化为json字符串
 # 因为通常class的实例都有一个 __dict__属性，它就是一个dict，用来存储实例变量，也有少数例外，比如定义了 __slots__ 的class
 
 # 获取当前进程的ID
-# import os
+import os
 # print('Process (%s) start...' % os.getpid())
 
 # 多进程
 # 创建子进程时，只需要传入一个执行函数和函数的参数，创建一个Process实例，用start()方法启动，这样创建进程比fork()还要简单
 # join()方法可以等待子进程结束后再继续往下运行，通常用于进程间的同步
-# from multiprocessing import Process
-# import os
+from multiprocessing import Process
+import os
 # # 子进程要执行的代码
 # def run_proc(name):
 # 	print('Run child process %s (%s)...' % (name, os.getpid()))
@@ -347,3 +349,222 @@
 # 	p.start()
 # 	p.join()
 # 	print('Child process end')
+
+# 随机数、时间戳（秒）
+# random.random() => 生成 0 - 1 范围内的随机浮点数
+# random.uniform(a, b) => 生成 a - b 范围内的随机浮点数
+# random.randint(a, b) => 生成 a - b 范围内的随机整数
+import random, time
+# for _ in range(10):
+# 	print(random.randint(0, 10), time.time())
+
+# Pool：如果要启动大量子进程，可以用进程池的方式批量创建子进程
+# 代码解析：对Pool对象调用join()方法会等待所有子进程执行完毕，调用join()之前必须先调用close()，调用close()之后就不能继续添加新的Process了
+# Pool(4)限制了最多执行4个进程，所以第5个进程会等待前面某个task完成后才执行，Pool的默认大小是CPU的核数
+from multiprocessing import Pool
+import os, time, random
+# def long_time_task(name):
+# 	print('Run task %s (%s)...' % (name, os.getpid()))
+# 	start = time.time()
+# 	time.sleep(random.random() * 3)
+# 	end = time.time()
+# 	print('Task %s runs %0.2f seconds' % (name, end - start))
+# if __name__ == '__main__':
+# 	print('Parent process %s.' % os.getpid())
+# 	p = Pool(4)
+# 	for i in range(5):
+# 		p.apply_async(long_time_task, args=(i,))
+# 	print('Waiting for all subprocesses done...')
+# 	p.close()
+# 	p.join()
+# 	print('ALl subprocesses done.')
+
+from multiprocessing import Process, Queue
+import os, time, random
+# def write(q):
+# 	print('Process to write: %s' % os.getpid())
+# 	for value in ['A', 'B', 'C']:
+# 		print('Put %s to queue...' % value)
+# 		q.put(value)
+# 		time.sleep(random.random())
+# def read(q):
+# 	print('Process to read %s' % os.getpid())
+# 	while True:
+# 		value = q.get(True)
+# 		print('Get %s from queue' % value)
+# if __name__ == '__main__':
+# 	# 父进程创建Queue，并传给各个子进程
+# 	q = Queue()
+# 	pw = Process(target=write, args=(q,))
+# 	pr = Process(target=read, args=(q,))
+# 	# 启动子进程，写入与读取
+# 	pw.start()
+# 	pr.start()
+# 	# 等待pw结束
+# 	pw.join()
+# 	# pr进程里是死循环，无法等待其结束，只能强行终止
+# 	pr.terminate()
+
+# 多线程：一般用threading
+# current_thread()函数永远返回当前线程的实例，主线程实例的名字叫 MainThread
+# 子线程的名字在创建时指定，这里用的是 LoopThread，名字仅仅在打印时用来显示，完全没有其他意义
+import time, threading
+# def loop():
+# 	print('thread %s is running...' % threading.current_thread().name, 111)
+# 	n = 0
+# 	while n < 5:
+# 		n += 1
+# 		print('thread %s >>> %s' % (threading.current_thread().name, n))
+# 		time.sleep(1)
+# 	print('thread %s ended.' % threading.current_thread().name, 222)
+# print('thread %s is running...' % threading.current_thread().name, 333)
+# t = threading.Thread(target=loop, name='LoopThread')
+# t.start()
+# t.join()
+# print('thread %s ended.' % threading.current_thread().name, 444)
+
+# 使用锁，防止多线程同时修改一个变量出现问题
+import time, threading
+# balance = 0
+# lock = threading.Lock()
+# def change_it(n):
+# 	global balance
+# 	balance = balance + n
+# 	balance = balance - n
+# def run_thread(n):
+# 	for i in range(2000000):
+# 		# 先要获取锁
+# 		lock.acquire()
+# 		try:
+# 			# 修改数据
+# 			change_it(n)
+# 		finally:
+# 			# 改完数据后，释放锁
+# 			lock.release()
+# t1 = threading.Thread(target=run_thread, args=(5,))
+# t2 = threading.Thread(target=run_thread, args=(8,))
+# t1.start()
+# t2.start()
+# t1.join()
+# t2.join()
+# print('balance =', balance)
+
+# 时间戳为浮点数，整数部分为秒，小数部分为毫秒
+from datetime import datetime, timedelta, timezone
+# now = datetime.now()
+# print('now：', now)
+# tp = now.timestamp()
+# print('时间戳：', tp)
+# time = datetime.fromtimestamp(tp)
+# print('时间：', time)
+# # 字符串 转 datetime，使用 datetime.strptime()，需对齐字段长短
+# cday = datetime.strptime('2011-11-11 11:11:11', '%Y-%m-%d %H:%M:%S')
+# print('cday：', cday)
+# # datetime 转 字符串，使用 strftime()
+# print(now.strftime('%a, %b %d %H:%M'))
+# print(now.strftime('%Y-%m-%d %H:%M:%S'))
+# # datetime 加减
+# print(now + timedelta(hours = 10))
+# print(now - timedelta(days = 1))
+# print(now + timedelta(days = 1, hours = 10))
+
+import re
+# 设置带时区的时间
+# def to_timestamp(dt_str, tz_str):
+# 	hh = re.match(r'^UTC([+-]\d{1,2})', tz_str).group(1)
+# 	time = datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S')
+# 	tz_utc_ct = timezone(timedelta(hours=int(hh)))
+# 	time = time.replace(tzinfo=tz_utc_ct)
+# 	return time.timestamp()
+# t1 = to_timestamp('2015-6-1 08:10:30', 'UTC+7:00')
+# t2 = to_timestamp('2015-5-31 16:10:30', 'UTC-09:00')
+# print(t1, t2, 'tttt')
+
+# namedtuple
+# namedtuple 是一个函数，它用来创建一个自定义的 tuple，并且规定了tuple元素的个数，并可以用属性而不是索引来引用tuple的某个元素
+from collections import namedtuple
+# Point = namedtuple('Point', ['x', 'y'])
+# p = Point(1, 2)
+# print(p, p.x, p.y, 'pppp')
+
+# deque
+# deque 使用list存储数据时，按索引访问元素很快，但是插入和删除元素就很慢了，因为list是线性存储，数据量大的时候，插入和删除效率很低，deque是为了高效实现插入和删除操作的双向列表，适合用于队列和栈
+from collections import deque
+# q = deque(['a', 'b', 'c'])
+# q.append('x')
+# q.appendleft('y')
+# print(q, 'qqqq')
+# q.pop()
+# q.popleft()
+# print(q, 'q2q2q2')
+
+# defaultdict
+# defaultdict，使用dict时，如果引用的key不存在，就会抛出KeyError，如果希望key不存在时，返回一个默认值，就可用defaultdict
+# 注意默认值是调用函数返回的，二函数在创建defaultdict对象时传入
+from collections import defaultdict
+# dd = defaultdict(lambda: 'N/A')
+# dd['key1'] = 'abc'
+# print(dd['key1'])
+# print(dd['key2'])
+
+# OrderedDict
+# OrderedDict，使用dict时，key是无序的，在对dict做迭代时，我们无法确定key的顺序，如果要保持key的顺序，就可用OrderedDict
+from collections import OrderedDict
+# d = dict([('a', 1), ('c', 3), ('b', 2)])
+# # d的key是无序的
+# print(d, 'd')
+# # dd的key是有序的
+# dd = OrderedDict([('x', 11), ('y', 22), ('z', 33)])
+# print(dd, 'dd')
+# dd['x'] = 'xxx'
+# print(dd, 'dd2')
+# OrderedDict的key会按照插入的顺序排列，不是key本身排序
+# OrderedDict可以实现一个FIFO（先进先出）的dict，当容量超出限制时，先删除最早添加的key
+
+# import hashlib
+# md5 = hashlib.md5()
+# md5.update('how to use md5 in '.encode('utf-8'))
+# md5.update('python hashlib?'.encode('utf-8'))
+# print(md5.hexdigest())
+
+# itertools：提供了非常有用的用于操作迭代对象的函数，返回值是Iterator
+import itertools
+# 无限的重复下去,根本停不下来：
+# 传入 count() 的第一个参数为起始值，第二个参数为步伐
+# counts = itertools.count(1, 2)
+# for n in counts:
+# 	print(n)		# => 1, 3, 5, 7, ...
+# cycles = itertools.cycle('ABC')
+# for n in cycles:
+# 	print(n)
+# repeat 可通过传第二个参数，限定重复次数
+# repeats = itertools.repeat('AB', 3)
+# for n in repeats:
+# 	print(n)
+# 可通过 takewhile() 等函数根据条件判断来截取出一个有限的序列
+# counts = itertools.count(1)
+# ll = itertools.takewhile(lambda x: x <= 10, counts)
+# print(list(ll), 'll')
+# chain()
+# 可以把一组迭代对象串联起来，形成一个更大的迭代器
+# for n in itertools.chain('ABC', 'XYZ'):
+# 	print(n)		# => A B C X Y Z
+# groupby()
+# 把迭代器中相邻的重复元素挑出来放在一起
+# for k, g in itertools.groupby('AAABBCCAAA'):
+# 	print(k, list(g))
+# ['A', 'A', 'A'] ['B', 'B'] ['C', 'C'] ['A', 'A', 'A']
+
+# def pi(N):
+# 	# step 1: 创建一个奇数序列：1, 3, 5, 7, 9, ...
+# 	counts = itertools.count(1, 2)
+# 	# step 2: 取该序列的前N项
+# 	ll = list(itertools.takewhile(lambda x: x <= 2 * N - 1, counts))
+# 	# step 3: 隔项添加正负号，并用4除
+# 	ll = [-4 / ll[i] if i % 2 else 4 / ll[i] for i in range(0, N)]
+# 	# step 4: 求和
+# 	return sum(ll)
+# print(pi(10))
+# print(pi(100))
+
+from PIL import Image
