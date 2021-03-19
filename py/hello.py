@@ -66,7 +66,7 @@
 # print(obj['name'], 'name' in obj, obj.get('name'), obj.get('age'), obj.get('age', 666), 'dict')
 
 # set		类似于js的 Set
-# 可通过 set1 & set2 取两者的交集，通过 set1 | set2 取并集，set不可添加不可变对象，如：list
+# 可通过 set1 & set2 取两者的交集，通过 set1 | set2 取并集，set1 - set2 取差集， set1 ^ set2 取不同时存在的项，set不可添加不可变对象，如：list
 
 # 函数使用 def 来定义，如：def ma_func(x): 在此之后以缩进编写函数体，return返回值
 # 函数的返回值其实就是一个 tuple ，在语法上一个 tuple 可以省略括号，多个变量接收一个 tuple ，则按顺序赋予对应位置的值
@@ -354,6 +354,7 @@ import os
 # random.random() => 生成 0 - 1 范围内的随机浮点数
 # random.uniform(a, b) => 生成 a - b 范围内的随机浮点数
 # random.randint(a, b) => 生成 a - b 范围内的随机整数
+# random.randrange(1, 10, 1) => 在1 - 10 间生成一个随机数，步进为1
 import random, time
 # for _ in range(10):
 # 	print(random.randint(0, 10), time.time())
@@ -567,4 +568,180 @@ import itertools
 # print(pi(10))
 # print(pi(100))
 
-from PIL import Image
+from PIL import Image, ImageFilter
+# png = Image.open('pic.png')
+# # 分辨率
+# w, h = png.size
+# print('图片分辨率为：%s * %s' % (w, h))
+# 缩放到50%
+# png.thumbnail((w//2, h//2))
+# print('缩放后尺寸为：%s * %s' % (w//2, h//2))
+# 保存新图片
+# png.save('newPic.png', 'png')
+# 应用模糊滤镜
+# blurryPng = png.filter(ImageFilter.BLUR)
+# blurryPng.save('blurryPng.png', 'png')
+
+import requests
+# r = requests.get('https://www.baidu.com/', params={'a': 'xxx'})
+# 状态码 ... 实际请求URL 编码 bytes对象
+# print(r.status_code, r.text, r.url, r.encoding, r.content)
+# 使用 r.json() 直接获取JSON
+# 需要请求头时，传入一个 dict 作为 headers 参数
+# 发送 POST 请求，只需要把 get() 方法变成 post()，然后传入 data 参数作为 POST 请求的数据
+
+import psutil
+# CPU逻辑数量
+# print(psutil.cpu_count())		# => 8
+# # CPU物理核心
+# print(psutil.cpu_count(logical=False))		# => 4
+# # 统计CPU的用户/系统/空闲时间
+# print(psutil.cpu_times())
+# # 内存信息
+# print(psutil.virtual_memory())
+
+# 要操作关系数据库，首先需要连接到数据库，一个数据库连接成为Connection
+# 连接到数据库后，需要打开游标，称之为Cursor，通过Cursor执行SQL语句，然后获得执行结果
+# 使用Python的DB-API时，只要搞清楚Connection和Cursor对象，打开后一定要记得关闭，就可以放心的使用，否则，资源就会泄露
+
+# 导入SQLite驱动
+import sqlite3
+# 连接到SQLite数据库，数据库文件是test.db，如果文件不存在，会自动在当前目录创建
+# conn = sqlite3.connect('test.db')
+# # 创建一个Cursor
+# cursor = conn.cursor()
+# # 执行一条SQL语句，创建user表
+# try:
+# 	cursor.execute('create table user (id varchar(20) primary key, name varchar(20))')
+# except:
+# 	print('已存在该表')
+# # 插入一条记录
+# 使用Cursor对象执行insert、update、delete语句时，执行结果由rowcount返回影响的行数
+# 使用Cursor对象执行insert语句时，通过fetchall()可以拿到结果集，结果集是一个list，每一个元素都是一个tuple，对应一行记录
+# try:
+# 	cursor.execute('insert into user (id, name) values (\'1\', \'xiaoming\')')
+# except:
+# 	print('数据插入失败')
+# # 通过 rowcount 获得插入的行数
+# print(cursor.rowcount)
+# # 关闭Cursor
+# cursor.close()
+# # 提交事务
+# conn.commit()
+# # 关闭Connection
+# conn.close()
+# # 查询记录
+# conn2 = sqlite3.connect('test.db')
+# cursor2 = conn2.cursor()
+# # 执行查询语句
+# 如果SQL语句带有参数，那么需要把参数按照位置传递给execute()方法，有几个占位符 ? 就必须对应几个参数
+# cursor2.execute('select * from user where id=?', ('1',))
+# # 获取查询结果集
+# values = cursor2.fetchall()
+# print(values)		# => [('1', 'xiaoming')]
+# cursor2.close()
+# conn2.close()
+
+import mysql.connector
+# MySQL的操作与SQLite类似
+# 执行insert等操作后要调用commit()提交事务
+# MySQL的SQL占位符是%s
+# conn = mysql.connector.connect(user='root', password='password', database='test')
+# cursor ...
+
+# def consumer():
+# 	r = ''
+# 	print(123)
+# 	while True:
+# 		n = yield r
+# 		if not n:
+# 			print('not n')
+# 			return
+# 		print('[CCC] Consuming %s...' % n)
+# 		r = '200 OK'
+# def produce(c):
+# 	c.send(None)
+# 	n = 0
+# 	while n < 5:
+# 		n += 1
+# 		print('[PPP] Producing %s...' % n)
+# 		r = c.send(n)
+# 		print('[PPP] Consuming return %s' %r)
+# 	c.close()
+# c = consumer()
+# produce(c)
+
+import asyncio
+
+# 海象运算符，用于简化赋值操作等
+# :=threading
+# a = [1, 2, 3]
+# if (n := len(a)) < 10:
+# 	print(n, 'nnnnn')
+# 不使用海象运算符写法：n = len(a)，需多定义一个变量
+
+import jsonpath
+
+# g_num = 100
+# def word1():
+#     global g_num
+#     for i in range(3):
+#         g_num += 1
+#         print('g_num = ', g_num)
+#
+# def word2():
+#     global g_num
+#     print('g_num1 = ', g_num)
+#
+# if __name__ == '__main__':
+#     t1 = threading.Thread(target=word1)
+#     t1.start()
+#     time.sleep(1)
+#     t2 = threading.Thread(target=word2)
+#     t2.start()
+
+# 爬搜狗首页
+# if __name__ == '__main__':
+#     url = 'https://www.sogou.com/'
+#     # 返回一个响应对象
+#     response = requests.get(url = url)
+#     # 获取响应数据，text返回的是字符串形式的响应数据
+#     page_text = response.text
+#     print('page_text: ', page_text)
+#     # 持久化存储
+#     with open('./sogou.html', 'w', encoding = 'utf-8') as fp:
+#         fp.write(page_text)
+#     print('爬取结束...')
+# UA伪装、加参数
+# if __name__ == '__main__':
+#     headers = {
+#         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'
+#     }
+#     url = 'https://www.sogou.com/'
+#     kw = input('input the params')
+#     params = {
+#         'query': kw
+#     }
+#     response = requests.get(url=url, params=params, headers=headers)
+#     page_text = response.text
+#     # 写入文件
+#     fileName = kw + '.html'
+#     with open(fileName, 'w', encoding = 'utf-8') as fp:
+#         fp.write(page_text)
+#     print(fileName, '写入成功')
+
+# if __name__ == '__main__':
+#     url = 'https://movie.douban.com/j/chart/top_list'
+#     params = {
+#         'type': '24',
+#         'interval_id': '100:90',
+#         'action': '',
+#         'start': '0',
+#         'limit': '20'
+#     }
+#     headers = {
+#         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36'
+#     }
+#     response = requests.get(url=url, params=params, headers=headers)
+#     list_data = response.json()
+#     print('list_data: ', list_data)
